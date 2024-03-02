@@ -1,5 +1,5 @@
 {
-	"name": "serverless-sqs-sns",
+	"name": "serverless-boilerplate",
 	"description": "",
 	"version": "1.0.0",
 	"main": "index.js",
