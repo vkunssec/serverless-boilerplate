@@ -8,7 +8,8 @@
 		"lint": "eslint --ext .ts --fix .",
 		"prettier": "prettier --tab-width 4 --use-tabs true --write --ignore-unknown .",
 		"prepare": "husky install",
-		"build": "tsc --noemit"
+		"build": "tsc --noemit",
+		"dev": "npx sls offline --stage dev"
 	},
 	"author": "Victor Martins (https://github.com/vkunssec)",
 	"license": "MIT",
