@@ -1,0 +1,24 @@
+org: vkunssec
+app: aws-node-project
+service: aws-node-project
+frameworkVersion: "3"
+
+plugins:
+    - serverless-esbuild
+    - serverless-offline
+
+provider:
+    name: aws
+    runtime: nodejs18.x
+    region: us-east-1
+    stage: ${opt:stage}
+    environment:
+        STAGE: ${self:provider.stage}
+
+functions:
+    healthcheck:
+        handler: ./src/index.healthcheck
+        events:
+            - httpApi:
+                  path: /api/healthcheck
+                  method: GET
