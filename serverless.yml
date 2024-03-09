@@ -1,19 +1,40 @@
 org: vkunssec
-app: aws-node-project
-service: aws-node-project
+app: simple-serverless
+service: simple-serverless
 frameworkVersion: "3"
 
 plugins:
     - serverless-esbuild
+    - serverless-offline-sqs
     - serverless-offline
+    - serverless-stage-manager
 
 provider:
     name: aws
     runtime: nodejs18.x
-    region: us-east-1
-    stage: ${opt:stage}
+    region: ${opt:region, "sa-east-1"}
+    stage: ${opt:stage, "development"}
     environment:
         STAGE: ${self:provider.stage}
+        QUEUE_URL: ${self:custom.${self:provider.stage}.QUEUE_URL}
+        ENDPOINT: ${self:custom.${self:provider.stage}.ENDPOINT}
+    iam:
+        role:
+            statements:
+                - Effect: Allow
+                  Action:
+                      - lambda:*
+                      - sqs:*
+                  Resource: "*"
+
+resources:
+    Resources:
+        myQueue: ${file(resources/queue/myQueue.yml):myQueue}
+        myQueueDLQ: ${file(resources/queue/myQueue.yml):myQueueDLQ}
+
+    Outputs:
+        myQueueArn: ${file(resources/queue/myQueue.yml):Outputs.myQueueArn}
+        myQueueUrl: ${file(resources/queue/myQueue.yml):Outputs.myQueueUrl}
 
 functions:
     healthcheck:
@@ -22,3 +43,47 @@ functions:
             - httpApi:
                   path: /api/healthcheck
                   method: GET
+
+    producer:
+        handler: src/queue/producer.handler
+        events:
+            - httpApi:
+                  method: POST
+                  path: /produce-message
+
+    consumer:
+        handler: src/queue/consumer.handler
+        events:
+            - sqs:
+                  arn: ${self:custom.myQueue.arn}
+                  batchSize: 1
+
+custom:
+    stages:
+        - development
+        - staging
+        - production
+
+    development:
+        ENDPOINT: "http://localhost:9324"
+        QUEUE_URL: ${self:custom.serverless-offline-sqs.queueName}
+    staging:
+        ENDPOINT: ""
+        QUEUE_URL: ${self:custom.myQueue.url}
+    production:
+        ENDPOINT: ""
+        QUEUE_URL: ${self:custom.myQueue.url}
+
+    myQueue:
+        arn: !GetAtt myQueue.Arn
+        url: !Ref myQueue
+
+    serverless-offline-sqs:
+        queueName: ${self:service}-${self:provider.stage}-MyQueue
+        autoCreate: true
+        apiVersion: "2012-11-05"
+        endpoint: http://0.0.0.0:9324
+        region: us-east-1
+        accessKeyId: doesnt_matter
+        secretAccessKey: doesnt_matter
+        skipCacheInvalidation: false

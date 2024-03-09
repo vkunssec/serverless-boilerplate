@@ -1,0 +1,24 @@
+myQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+        QueueName: ${self:service}-${self:provider.stage}-MyQueue
+        RedrivePolicy:
+            deadLetterTargetArn: !GetAtt
+                - myQueueDLQ
+                - Arn
+            maxReceiveCount: 5
+
+myQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+        QueueName: ${self:service}-${self:provider.stage}-MyQueueDeadLetters
+
+Outputs:
+    myQueueArn:
+        Value: ${self:custom.myQueue.arn}
+        Export:
+            Name: ${self:service}-${self:provider.stage}-MyQueue-Arn
+    myQueueUrl:
+        Value: ${self:custom.myQueue.url}
+        Export:
+            Name: ${self:service}-${self:provider.stage}-MyQueue-Url
