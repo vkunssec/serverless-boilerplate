@@ -1,7 +1,7 @@
 import { APIGatewayProxyEventV2, Context, Handler } from "aws-lambda";
 import { StatusCodes } from "http-status-codes";
 
-export const healthcheck: Handler = async (
+export const handler: Handler = async (
 	event: APIGatewayProxyEventV2,
 	context: Context,
 ) => {

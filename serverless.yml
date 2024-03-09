@@ -38,21 +38,21 @@ resources:
 
 functions:
     healthcheck:
-        handler: ./src/index.healthcheck
+        handler: ./src/lambda/healthcheck.handler
         events:
             - httpApi:
                   path: /api/healthcheck
                   method: GET
 
     producer:
-        handler: src/queue/producer.handler
+        handler: ./src/lambda/producer.handler
         events:
             - httpApi:
                   method: POST
                   path: /produce-message
 
     consumer:
-        handler: src/queue/consumer.handler
+        handler: ./src/queue/consumer.handler
         events:
             - sqs:
                   arn: ${self:custom.myQueue.arn}
