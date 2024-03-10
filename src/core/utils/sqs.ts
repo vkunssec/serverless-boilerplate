@@ -11,16 +11,7 @@ export class SQSUtils {
 			secretAccessKey: string;
 		};
 		endpoint?: string;
-	} =>
-		OfflineUtils.isOffline()
-			? {
-					credentials: {
-						accessKeyId: "doesnt_matter",
-						secretAccessKey: "doesnt_matter",
-					},
-					endpoint: process.env.ENDPOINT,
-				}
-			: {};
+	} => (OfflineUtils.isOffline() ? OfflineUtils.optionsSQS() : {});
 
 	static readonly queueUrl = (queueName: string): string =>
 		OfflineUtils.isOffline()
