@@ -1,26 +1,25 @@
 import { SQS } from "@aws-sdk/client-sqs";
 
 import { SQSUtils } from "../utils/sqs";
-import { OfflineUtils } from "../utils/offline";
 
 const sqs = new SQS(SQSUtils.optionsSQS());
 
 export async function sendMessage({
+	queueName,
 	message,
 	attribute,
 }: {
-	message: string | undefined;
-	attribute: string | undefined;
+	queueName: string;
+	message: string;
+	attribute: string;
 }) {
 	return await sqs.sendMessage({
-		QueueUrl: OfflineUtils.isOffline()
-			? SQSUtils.queueUrl()
-			: process.env.QUEUE_URL || "",
-		MessageBody: message || "",
+		QueueUrl: SQSUtils.queueUrl(queueName),
+		MessageBody: message,
 		MessageAttributes: {
 			AttributeName: {
 				DataType: "String",
-				StringValue: attribute || "",
+				StringValue: attribute,
 			},
 		},
 	});

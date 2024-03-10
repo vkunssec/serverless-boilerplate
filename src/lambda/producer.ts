@@ -8,9 +8,15 @@ export const handler: Handler = async (event: APIGatewayProxyEventV2) => {
 	let statusCode = StatusCodes.OK;
 
 	try {
-		const message = event.body || "";
+		const message = event.body || "{}";
 		const attribute = "attribute.core.consumer";
-		await sendMessage({ message, attribute });
+		const queueName = "consumer";
+
+		await sendMessage({
+			queueName,
+			message,
+			attribute,
+		});
 
 		response = "Successfully enqueued message!";
 	} catch (error) {

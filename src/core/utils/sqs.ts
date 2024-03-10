@@ -1,5 +1,9 @@
 import { OfflineUtils } from "./offline";
 
+const queueUrls: Record<string, string> = {
+	consumer: process.env.CONSUMER_QUEUE_URL!,
+};
+
 export class SQSUtils {
 	static readonly optionsSQS = (): {
 		credentials?: {
@@ -18,8 +22,8 @@ export class SQSUtils {
 				}
 			: {};
 
-	static readonly queueUrl = (): string =>
+	static readonly queueUrl = (queueName: string): string =>
 		OfflineUtils.isOffline()
-			? `${process.env.ENDPOINT}/000000000000/${process.env.QUEUE_URL}`
-			: `${process.env.QUEUE_URL}`;
+			? `${process.env.ENDPOINT}/000000000000/${queueUrls[queueName]}`
+			: queueUrls[queueName];
 }

@@ -1,0 +1,24 @@
+consumer:
+    Type: AWS::SQS::Queue
+    Properties:
+        QueueName: ${self:service}-${self:provider.stage}-consumer
+        RedrivePolicy:
+            deadLetterTargetArn: !GetAtt
+                - consumerDLQ
+                - Arn
+            maxReceiveCount: 5
+
+consumerDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+        QueueName: ${self:service}-${self:provider.stage}-consumerDeadLetters
+
+Outputs:
+    consumerArn:
+        Value: ${self:custom.consumer.arn}
+        Export:
+            Name: ${self:service}-${self:provider.stage}-consumer-Arn
+    consumerUrl:
+        Value: ${self:custom.consumer.url}
+        Export:
+            Name: ${self:service}-${self:provider.stage}-consumer-Url
